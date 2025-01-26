@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ควบคุมระดับเสียง</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // เพิ่มการตั้งค่า Tailwind
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <link href="https://unpkg.com/@tailwindcss/forms@0.2.1/dist/forms.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Dark Mode Toggle -->
+            <div class="flex justify-end mb-4">
+                <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
+                    <svg class="w-6 h-6 dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg class="w-6 h-6 hidden dark:block text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">ควบคุมระดับเสียง</h1>
+
+                <!-- Volume Slider -->
+                <div class="mb-8">
+                    <input type="range"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+                    <p class="text-center mt-4 text-gray-600 dark:text-gray-300">
+                        ระดับเสียง: <span id="volumeValue" class="font-bold text-blue-600 dark:text-blue-400">50%</span>
+                    </p>
+                </div>
+
+                <!-- Preset Buttons -->
+                <div class="grid grid-cols-5 gap-2 mb-6 dark:text-white">
+                    <button class="preset-btn" onclick="setPreset(0.15)">15%</button>
+                    <button class="preset-btn" onclick="setPreset(0.25)">25%</button>
+                    <button class="preset-btn" onclick="setPreset(0.35)">35%</button>
+                    <button class="preset-btn" onclick="setPreset(0.45)">45%</button>
+                    <button class="preset-btn" onclick="setPreset(0.55)">55%</button>
+                </div>
+                <div class="grid grid-cols-5 gap-2 mb-6 dark:text-white">
+                    <button class="preset-btn" onclick="setPreset(0.65)">65%</button>
+                    <button class="preset-btn" onclick="setPreset(0.75)">75%</button>
+                    <button class="preset-btn" onclick="setPreset(0.85)">85%</button>
+                    <button class="preset-btn" onclick="setPreset(0.95)">95%</button>
+                    <button class="preset-btn" onclick="setPreset(1.00)">100%</button>
+                </div>
+
+                <!-- Control Buttons -->
+                <button onclick="setPreset(0.0)"
+                    class="w-full mb-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700">
+                    ปิดเสียง
+                </button>
+
+                <button onclick="getCurrentVolume()"
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700">
+                    ตรวจสอบระดับเสียงปัจจุบัน
+                </button>
+
+                <!-- เพิ่มปุ่มควบคุมหลังจาก volume controls -->
+                <div class="flex justify-center gap-4 mb-6 py-4 px-4">
+                    <button id="prevButton"
+                        class="flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-6 rounded-lg transition-colors duration-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                        ถอยหลัง
+                    </button>
+
+                    <button id="playButton"
+                        class="flex items-center justify-center bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        เล่น
+                    </button>
+
+                    <button id="nextButton"
+                        class="flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-6 rounded-lg transition-colors duration-200">
+                        ไปหน้า
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- เพิ่ม Keyboard Shortcuts Info -->
+                <div class="text-sm text-gray-600 dark:text-gray-400 text-center mt-4">
+                    <p>Shortcuts: Space = เล่น/หยุด, ← = ถอยหลัง, → = ไปหน้า</p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage"
+                    class="hidden mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .preset-btn {
+            @apply bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+        }
+    </style>
+
+    <script>
+        // Dark Mode Toggle with time check
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+
+            function shouldEnableDarkMode() {
+                const currentHour = new Date().getHours();
+                return currentHour >= 18 || currentHour < 6; // เปิด Dark Mode ระหว่าง 18:00 - 05:59
+            }
+
+            // Check for saved dark mode preference or time
+            if (localStorage.getItem('darkMode') === 'true' || 
+                (!localStorage.getItem('darkMode') && shouldEnableDarkMode())) {
+                html.classList.add('dark');
+            }
+
+            // ตรวจสอบเวลาทุกนาที
+            setInterval(() => {
+                if (shouldEnableDarkMode() && !localStorage.getItem('darkMode')) {
+                    html.classList.add('dark');
+                } else if (!shouldEnableDarkMode() && !localStorage.getItem('darkMode')) {
+                    html.classList.remove('dark');
+                }
+            }, 60000); // ตรวจสอบทุก 1 นาที
+
+            darkModeToggle.addEventListener('click', () => {
+                html.classList.toggle('dark');
+                // บันทึกการตั้งค่าด้วยตนเอง
+                localStorage.setItem('darkMode', html.classList.contains('dark'));
+            });
+        });
+
+        // Volume Control Functions
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // เพิ่มฟังก์ชันสำหรับ preset
+        function setPreset(value) {
+            volumeSlider.value = value;
+            updateVolume(value);
+        }
+
+        // เพิ่มฟังก์ชันสำหรับดึง server URL
+        function getServerUrl() {
+            // ดึง IP จาก window.location หรือใช้ค่าเริ่มต้น
+            const serverIP = window.location.hostname;
+            return `http://${serverIP}:5000`;
+        }
+
+        // แก้ไขทุก fetch request ให้ใช้ dynamic URL
+        function updateVolume(volume) {
+            volumeSlider.value = volume;
+            volumeValue.textContent = `${Math.round(volume * 100)}%`;
+
+            fetch(`${getServerUrl()}/set_volume`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ volume: volume }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || 'การตอบสนองเครือข่ายมีปัญหา');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("การตอบสนองจากเซิร์ฟเวอร์:", data);
+                    errorMessage.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error("เกิดข้อผิดพลาด:", error);
+                    errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                });
+        }
+
+        // เพิ่มฟังก์ชันตรวจสอบระดับเสียงปัจจุบัน
+        function getCurrentVolume() {
+            fetch(`${getServerUrl()}/get_volume`)
+                .then(response => response.json())
+                .then(data => {
+                    volumeSlider.value = data.volume;
+                    volumeValue.textContent = `${Math.round(data.volume * 100)}%`;
+                })
+                .catch(error => {
+                    console.error("เกิดข้อผิดพลาด:", error);
+                    errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                });
+        }
+
+        // เพิ่มเอฟเฟกต์เมื่อเลื่อน slider
+        volumeSlider.addEventListener('input', () => {
+            const volume = parseFloat(volumeSlider.value);
+            updateVolume(volume);
+            // เพิ่มการสั่น (vibration) เมื่อเลื่อน (ถ้าอุปกรณ์รองรับ)
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+
+        // โหลดระดับเสียงเมื่อเริ่มต้น
+        getCurrentVolume();
+
+        // Controls
+        const playButton = document.getElementById('playButton');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        let isPlaying = false;
+
+        // Play/Pause Toggle
+        function togglePlay() {
+            fetch(`${getServerUrl()}/media_control`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: 'play' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    isPlaying = !isPlaying;
+                    playButton.innerHTML = isPlaying ? 
+                        `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                         </svg>หยุด` : 
+                        `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                         </svg>เล่น`;
+                }
+            })
+            .catch(error => {
+                console.error("เกิดข้อผิดพลาด:", error);
+                errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                errorMessage.style.display = 'block';
+            });
+        }
+
+        // Previous Track
+        function previousTrack() {
+            fetch(`${getServerUrl()}/media_control`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: 'previous' })
+            })
+            .catch(error => {
+                console.error("เกิดข้อผิดพลาด:", error);
+                errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                errorMessage.style.display = 'block';
+            });
+        }
+
+        // Next Track
+        function nextTrack() {
+            fetch(`${getServerUrl()}/media_control`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: 'next' })
+            })
+            .catch(error => {
+                console.error("เกิดข้อผิดพลาด:", error);
+                errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                errorMessage.style.display = 'block';
+            });
+        }
+
+        // Event Listeners
+        playButton.addEventListener('click', togglePlay);
+        prevButton.addEventListener('click', previousTrack);
+        nextButton.addEventListener('click', nextTrack);
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // ป้องกันการเลื่อนหน้า
+                togglePlay();
+            } else if (e.code === 'ArrowLeft') {  // เปลี่ยนเป็น ArrowLeft
+                e.preventDefault();
+                previousTrack();
+            } else if (e.code === 'ArrowRight') {  // เปลี่ยนเป็น ArrowRight
+                e.preventDefault();
+                nextTrack();
+            }
+        });
+
+        // เพิ่มฟังก์ชันตรวจสอบการเชื่อมต่อ
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(getServerUrl());
+                if (!response.ok) {
+                    throw new Error('Server not responding');
+                }
+                // ซ่อนข้อความ error ถ้าเชื่อมต่อได้
+                errorMessage.style.display = 'none';
+            } catch (error) {
+                errorMessage.textContent = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้';
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // ตรวจสอบทุก 30 วินาที
+        setInterval(checkServerStatus, 30000);
+        // ตรวจสอบครั้งแรกเมื่อโหลดหน้า
+        checkServerStatus();
+    </script>
+</body>
+
+</html>
+</html>
