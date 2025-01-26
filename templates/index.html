@@ -45,20 +45,27 @@
                     <input type="range"
                         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                         id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+                    <div class="flex w-full justify-between px-2 text-xs dark:text-blue-400">
+                        <span>0</span>
+                        <span>25</span>
+                        <span>50</span>
+                        <span>75</span>
+                        <span>100</span>
+                    </div>
                     <p class="text-center mt-4 text-gray-600 dark:text-gray-300">
-                        ระดับเสียง: <span id="volumeValue" class="font-bold text-blue-600 dark:text-blue-400">50%</span>
+                        ระดับเสียง: <span id="volumeValue" class="font-bold text-blue-600 dark:text-blue-400"></span>
                     </p>
                 </div>
 
                 <!-- Preset Buttons -->
-                <div class="grid grid-cols-5 gap-2 mb-6 dark:text-white">
+                <div class="grid grid-cols-5 gap-2 mb-6 text-gray-800 dark:text-white li">
                     <button class="preset-btn" onclick="setPreset(0.15)">15%</button>
                     <button class="preset-btn" onclick="setPreset(0.25)">25%</button>
                     <button class="preset-btn" onclick="setPreset(0.35)">35%</button>
                     <button class="preset-btn" onclick="setPreset(0.45)">45%</button>
                     <button class="preset-btn" onclick="setPreset(0.55)">55%</button>
                 </div>
-                <div class="grid grid-cols-5 gap-2 mb-6 dark:text-white">
+                <div class="grid grid-cols-5 gap-2 mb-6 text-gray-800 dark:text-white">
                     <button class="preset-btn" onclick="setPreset(0.65)">65%</button>
                     <button class="preset-btn" onclick="setPreset(0.75)">75%</button>
                     <button class="preset-btn" onclick="setPreset(0.85)">85%</button>
@@ -66,11 +73,21 @@
                     <button class="preset-btn" onclick="setPreset(1.00)">100%</button>
                 </div>
 
+                <!-- Mute Button -->
+                <button id="muteButton" onclick="toggleMute()"
+                    class="w-full mb-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700 flex items-center justify-center">
+                    <svg id="muteIcon" class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.536 8.464a5 5 0 010 7.072M12 8v8m0 0l-2.536-2.536M12 16l2.536-2.536"></path>
+                    </svg>
+                    <span id="muteText">ปิดเสียง</span>
+                </button>
+
                 <!-- Control Buttons -->
-                <button onclick="setPreset(0.0)"
+                <!-- <button onclick="setPreset(0.0)"
                     class="w-full mb-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700">
                     ปิดเสียง
-                </button>
+                </button> -->
 
                 <button onclick="getCurrentVolume()"
                     class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700">
@@ -112,7 +129,7 @@
 
                 <!-- เพิ่ม Keyboard Shortcuts Info -->
                 <div class="text-sm text-gray-600 dark:text-gray-400 text-center mt-4">
-                    <p>Shortcuts: Space = เล่น/หยุด, ← = ถอยหลัง, → = ไปหน้า</p>
+                    <p>Shortcuts: Space = เล่น/หยุด, ← = ถอยหลัง, → = ไปหน้า, M = ปิด/เปิดเสียง</p>
                 </div>
 
                 <!-- Error Message -->
@@ -140,7 +157,7 @@
             }
 
             // Check for saved dark mode preference or time
-            if (localStorage.getItem('darkMode') === 'true' || 
+            if (localStorage.getItem('darkMode') === 'true' ||
                 (!localStorage.getItem('darkMode') && shouldEnableDarkMode())) {
                 html.classList.add('dark');
             }
@@ -253,25 +270,25 @@
                 },
                 body: JSON.stringify({ action: 'play' })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    isPlaying = !isPlaying;
-                    playButton.innerHTML = isPlaying ? 
-                        `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        isPlaying = !isPlaying;
+                        playButton.innerHTML = isPlaying ?
+                            `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                         </svg>หยุด` : 
-                        `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         </svg>หยุด` :
+                            `<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                          </svg>เล่น`;
-                }
-            })
-            .catch(error => {
-                console.error("เกิดข้อผิดพลาด:", error);
-                errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
-                errorMessage.style.display = 'block';
-            });
+                    }
+                })
+                .catch(error => {
+                    console.error("เกิดข้อผิดพลาด:", error);
+                    errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                });
         }
 
         // Previous Track
@@ -283,11 +300,11 @@
                 },
                 body: JSON.stringify({ action: 'previous' })
             })
-            .catch(error => {
-                console.error("เกิดข้อผิดพลาด:", error);
-                errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
-                errorMessage.style.display = 'block';
-            });
+                .catch(error => {
+                    console.error("เกิดข้อผิดพลาด:", error);
+                    errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                });
         }
 
         // Next Track
@@ -299,11 +316,11 @@
                 },
                 body: JSON.stringify({ action: 'next' })
             })
-            .catch(error => {
-                console.error("เกิดข้อผิดพลาด:", error);
-                errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
-                errorMessage.style.display = 'block';
-            });
+                .catch(error => {
+                    console.error("เกิดข้อผิดพลาด:", error);
+                    errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                });
         }
 
         // Event Listeners
@@ -344,8 +361,64 @@
         setInterval(checkServerStatus, 30000);
         // ตรวจสอบครั้งแรกเมื่อโหลดหน้า
         checkServerStatus();
+
+        let isMuted = false;
+
+        function toggleMute() {
+            fetch(`${getServerUrl()}/toggle_mute`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        isMuted = data.muted;
+                        updateMuteButton();
+                    }
+                })
+                .catch(error => {
+                    console.error("เกิดข้อผิดพลาด:", error);
+                    errorMessage.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                });
+        }
+
+        function updateMuteButton() {
+            const muteIcon = document.getElementById('muteIcon');
+            const muteText = document.getElementById('muteText');
+            const muteButton = document.getElementById('muteButton');
+
+            if (isMuted) {
+                muteIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+                `;
+                muteText.textContent = 'เปิดเสียง';
+                muteButton.classList.add('bg-gray-500');
+                muteButton.classList.remove('bg-red-500');
+            } else {
+                muteIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M15.536 8.464a5 5 0 010 7.072M12 8v8m0 0l-2.536-2.536M12 16l2.536-2.536"></path>
+                `;
+                muteText.textContent = 'ปิดเสียง';
+                muteButton.classList.add('bg-red-500');
+                muteButton.classList.remove('bg-gray-500');
+            }
+        }
+
+        // เพิ่ม shortcut key 'M' สำหรับ mute
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyM') {
+                e.preventDefault();
+                toggleMute();
+            }
+        });
     </script>
 </body>
 
-</html>
 </html>

@@ -171,6 +171,32 @@ def media_control():
         logger.debug(f"เกิดข้อผิดพลาดในการควบคุมมีเดีย: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/toggle_mute', methods=['POST'])
+def toggle_mute():
+    try:
+        pythoncom.CoInitialize()
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(
+            IAudioEndpointVolume._iid_, 
+            CLSCTX_ALL, 
+            None
+        )
+        volume = cast(interface, POINTER(IAudioEndpointVolume))
+        
+        # สลับสถานะ mute
+        current_mute = volume.GetMute()
+        volume.SetMute(not current_mute, None)
+        
+        return jsonify({
+            "status": "success", 
+            "muted": not current_mute
+        })
+    except Exception as e:
+        logger.debug(f"เกิดข้อผิดพลาดในการ toggle mute: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        pythoncom.CoUninitialize()
+
 def get_local_ip():
     try:
         # สร้าง socket เพื่อหา local IP
